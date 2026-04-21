@@ -6,11 +6,11 @@ const useLocalByEnv = envUseLocal === 'true' || envUseLocal === '1';
 // Backend routes in this workspace are mounted under /api/*
 export const API_URLS = {
     LOCAL: 'http://localhost:5000/api',
-    PRODUCTION: 'https://api.ibdata.com.ng/api'
+    PRODUCTION: 'https://yt-data-sub-backend-production.up.railway.app/api'
 };
 
-// Default to local API in development if no explicit env is provided.
-export const USE_LOCAL_API = envBase ? false : (envUseLocal ? useLocalByEnv : true);
+// Default to local API in development, production URL in production builds
+export const USE_LOCAL_API = envBase ? false : (envUseLocal ? useLocalByEnv : import.meta.env.DEV);
 
 export const getApiUrl = () => {
     if (envBase) return envBase;

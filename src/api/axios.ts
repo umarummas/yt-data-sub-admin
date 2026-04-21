@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getAdminApiUrl, getApiUrl } from '../config/api.config';
 
-const DEFAULT_ADMIN_BASE_URL = 'http://localhost:5000/api/admin';
+const DEFAULT_ADMIN_BASE_URL = 'https://yt-data-sub-backend-production.up.railway.app/api/admin';
 const computedAdminBaseUrl = getAdminApiUrl();
 const BASE_URL = computedAdminBaseUrl && /^https?:\/\//i.test(computedAdminBaseUrl)
   ? computedAdminBaseUrl
