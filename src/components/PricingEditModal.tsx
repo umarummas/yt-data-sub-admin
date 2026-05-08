@@ -10,9 +10,9 @@ interface PricingEditModalProps {
 
 const PROVIDERS = [
   { id: 1, name: 'MTN' },
-  { id: 2, name: 'Glo' },
-  { id: 3, name: 'Airtel' },
-  { id: 4, name: '9mobile' }
+  { id: 2, name: 'Airtel' },
+  { id: 3, name: 'Glo' },
+  { id: 4, name: '9mobile' },
 ];
 
 const TYPES = ['AIRTIME', 'DATA'];
@@ -68,7 +68,12 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onSave(formData);
+      onSave({
+        ...formData,
+        price: Number(formData.price),
+        discount: Number(formData.discount),
+        externalPlanId: formData.externalPlanId !== '' ? Number(formData.externalPlanId) : undefined,
+      });
     }
   };
 

@@ -60,6 +60,9 @@ const PricingPlans: React.FC = () => {
       setEditPlan(null);
       queryClient.invalidateQueries({ queryKey: ['pricing-plans'] });
     },
+    onError: (error: any) => {
+      alert(error?.response?.data?.message || 'Failed to update plan. Please try again.');
+    },
   });
 
   const deleteMutation = useMutation({
@@ -76,6 +79,9 @@ const PricingPlans: React.FC = () => {
     onSuccess: () => {
       setShowCreateModal(false);
       queryClient.invalidateQueries({ queryKey: ['pricing-plans'] });
+    },
+    onError: (error: any) => {
+      alert(error?.response?.data?.message || 'Failed to create plan. Please try again.');
     },
   });
 
