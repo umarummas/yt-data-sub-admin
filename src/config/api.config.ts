@@ -3,7 +3,6 @@ const envUseLocal = (import.meta.env.VITE_USE_LOCAL_API as string | undefined)?.
 
 const useLocalByEnv = envUseLocal === 'true' || envUseLocal === '1';
 
-
 // Backend routes in this workspace are mounted under /api/*
 export const API_URLS = {
     LOCAL: 'http://localhost:5000/api',
