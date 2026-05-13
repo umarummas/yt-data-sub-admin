@@ -98,5 +98,10 @@ export const sendBroadcast = (data: { title: string; message: string; type: stri
   api.post('/notifications/broadcast', data);
 export const deleteBroadcast = (id: string) => api.delete(`/notifications/broadcast/${id}`);
 export const getBroadcasts = () => api.get('/notifications/broadcast');
+
+// Referral Settings
+export const getReferralSettings = () => api.get('/referral-settings');
+export const updateReferralSettings = (data: { referrer_bonus_amount: number; referee_bonus_amount: number; min_transaction_for_bonus: number; is_active: boolean }) =>
+  api.put('/referral-settings', data);
 export const updateBroadcast = (id: string, data: { title: string; message: string; type: string; action_link?: string }) =>
   api.put(`/notifications/broadcast/${id}`, data);

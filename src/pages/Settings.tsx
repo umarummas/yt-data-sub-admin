@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { getSupportContent, updateSupportContent } from '../api/adminApi';
+import { getSupportContent, updateSupportContent, getReferralSettings, updateReferralSettings } from '../api/adminApi';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import { useToast } from '../hooks/ToastContext';
@@ -13,6 +13,13 @@ interface SupportContent {
     twitterUrl?: string;
     instagramUrl?: string;
     websiteUrl?: string;
+}
+
+interface ReferralSettingForm {
+    referrer_bonus_amount: number;
+    referee_bonus_amount: number;
+    min_transaction_for_bonus: number;
+    is_active: boolean;
 }
 
 const Settings = () => {
@@ -29,8 +36,17 @@ const Settings = () => {
         websiteUrl: ''
     });
 
+    const [referralLoading, setReferralLoading] = useState(false);
+    const [referralForm, setReferralForm] = useState<ReferralSettingForm>({
+        referrer_bonus_amount: 0,
+        referee_bonus_amount: 0,
+        min_transaction_for_bonus: 1,
+        is_active: false,
+    });
+
     useEffect(() => {
         fetchContent();
+        fetchReferralSettings();
     }, []);
 
     const fetchContent = async () => {
@@ -45,6 +61,21 @@ const Settings = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchReferralSettings = async () => {
+        try {
+            const response = await getReferralSettings();
+            if (response.data.success) {
+                const d = response.data.data;
+                setReferralForm({
+                    referrer_bonus_amount: d.referrer_bonus_amount ?? 0,
+                    referee_bonus_amount: d.referee_bonus_amount ?? 0,
+                    min_transaction_for_bonus: d.min_transaction_for_bonus ?? 1,
+                    is_active: d.is_active ?? false,
+                });
+            }
+        } catch { /* non-fatal */ }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +94,29 @@ const Settings = () => {
             showToast('Failed to update settings', 'error');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleReferralChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        setReferralForm(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : Number(value),
+        }));
+    };
+
+    const handleReferralSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            setReferralLoading(true);
+            const response = await updateReferralSettings(referralForm);
+            if (response.data.success) {
+                showToast('Referral settings saved', 'success');
+            }
+        } catch (error) {
+            showToast('Failed to save referral settings', 'error');
+        } finally {
+            setReferralLoading(false);
         }
     };
 
@@ -175,6 +229,86 @@ const Settings = () => {
                                 </div>
                             </form>
                         </div>
+
+                        {/* Referral Bonus Settings */}
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mt-8">
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Referral Bonus Settings</h2>
+                            <p className="text-slate-500 text-sm mb-6">
+                                Configure how much wallet credit is awarded when a referred user completes their first purchase.
+                                Set amounts to 0 to disable a specific bonus. Toggle <strong>Active</strong> to enable/disable the entire referral program.
+                            </p>
+                            <form onSubmit={handleReferralSubmit} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            Referrer Bonus (₦)
+                                            <span className="block text-xs font-normal text-slate-400 mt-0.5">Credited to the person who shared the referral code</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="referrer_bonus_amount"
+                                            min={0}
+                                            value={referralForm.referrer_bonus_amount}
+                                            onChange={handleReferralChange}
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            Referee Bonus (₦)
+                                            <span className="block text-xs font-normal text-slate-400 mt-0.5">Credited to the new user after first purchase (set 0 to skip)</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="referee_bonus_amount"
+                                            min={0}
+                                            value={referralForm.referee_bonus_amount}
+                                            onChange={handleReferralChange}
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            Min. Transactions to Trigger
+                                            <span className="block text-xs font-normal text-slate-400 mt-0.5">Usually 1 — the first successful purchase</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="min_transaction_for_bonus"
+                                            min={1}
+                                            value={referralForm.min_transaction_for_bonus}
+                                            onChange={handleReferralChange}
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="referral_active"
+                                        name="is_active"
+                                        checked={referralForm.is_active}
+                                        onChange={handleReferralChange}
+                                        className="w-4 h-4 accent-blue-600"
+                                    />
+                                    <label htmlFor="referral_active" className="text-sm font-semibold text-slate-700 cursor-pointer">
+                                        Referral program is <span className={referralForm.is_active ? 'text-green-600' : 'text-red-500'}>{referralForm.is_active ? 'ACTIVE' : 'INACTIVE'}</span>
+                                    </label>
+                                </div>
+                                <div className="flex justify-end pt-2">
+                                    <button
+                                        type="submit"
+                                        disabled={referralLoading}
+                                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {referralLoading ? 'Saving...' : 'Save Referral Settings'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
                     </div>
                 </main>
             </div>

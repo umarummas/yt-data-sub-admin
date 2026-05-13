@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { useToast } from '../hooks/ToastContext';
 import {
   bulkImportPricingPlans,
   createPricingPlan,
@@ -38,6 +39,8 @@ const PricingPlans: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  const { showToast } = useToast();
+
   const params = {
     page,
     limit,
@@ -61,7 +64,7 @@ const PricingPlans: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['pricing-plans'] });
     },
     onError: (error: any) => {
-      alert(error?.response?.data?.message || 'Failed to update plan. Please try again.');
+      showToast(error?.response?.data?.message || 'Failed to update plan. Please try again.', 'error');
     },
   });
 
@@ -78,10 +81,14 @@ const PricingPlans: React.FC = () => {
     mutationFn: (formData: any) => createPricingPlan(formData).then((res: any) => res.data),
     onSuccess: () => {
       setShowCreateModal(false);
+      setPage(1);
+      setProviderId('');
+      setType('');
       queryClient.invalidateQueries({ queryKey: ['pricing-plans'] });
+      showToast('Plan created successfully!', 'success');
     },
     onError: (error: any) => {
-      alert(error?.response?.data?.message || 'Failed to create plan. Please try again.');
+      showToast(error?.response?.data?.message || 'Failed to create plan. Please try again.', 'error');
     },
   });
 

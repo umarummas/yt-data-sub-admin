@@ -79,7 +79,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full p-6 shadow-lg max-h-96 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-2xl w-full p-6 shadow-lg max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold mb-4 text-gray-900">
           {isCreate ? 'Create New Plan' : 'Edit Plan'}
         </h2>
