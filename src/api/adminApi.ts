@@ -4,6 +4,7 @@ import api, { generalApi } from './axios';
 export const login = (data: { email: string; password: string }) =>
   api.post('/login', data);
 
+
 // Dashboard
 export const getDashboardStats = () => api.get('/dashboard');
 
